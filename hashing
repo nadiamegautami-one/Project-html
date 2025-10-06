@@ -1,0 +1,23 @@
+import { useState } from 'react';
+
+function FileUpload() {
+  const [hash, setHash] = useState<string | null>(null);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const arrayBuffer = await file.arrayBuffer();
+    const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    setHash(hashHex);
+  };
+
+  return (
+    <div>
+      <input type="file" accept="image/*,video/*,audio/*" onChange={handleFileChange} />
+      {hash && <p className="mt-4">Hash: {hash}</p>}
+    </div>
+  );
+}
